@@ -7,9 +7,18 @@
             <img src="{{ storage_url(category.image_path) }}" alt="" class="vv-cat-tile-img">
         {% endif %}
         <div class="vv-cat-tile-body">
-            <div class="vv-cat-tile-label">{{ editable(category.name,'category',category.id,'name') }}</div>
-            <div class="vv-cat-tile-sub">
-                Click to view <span class="vv-cat-arrow">→</span>
+            <div class="flex items-center gap-3">
+                {% if category.icon_path %}
+                <div style="width:36px; height:36px; border-radius:8px; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    {{ editable_icon(category.icon_path, category.id, 'w-5 h-5 text-white', '20') }}
+                </div>
+                {% endif %}
+                <div>
+                    <div class="vv-cat-tile-label">{{ editable(category.name,'category',category.id,'name') }}</div>
+                    <div class="vv-cat-tile-sub">
+                        Browse <span class="vv-cat-arrow">→</span>
+                    </div>
+                </div>
             </div>
         </div>
     </a>
