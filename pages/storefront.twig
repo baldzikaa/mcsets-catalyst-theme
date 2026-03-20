@@ -68,9 +68,19 @@
             {# ── CATEGORY VIEW — product tiles ───────────── #}
             <div class="vv-animate-up">
                 <div class="flex items-center gap-3 mb-2">
-                    <a href="/" style="font-size:12px; font-weight:700; color:var(--vv-muted); text-decoration:none;" onmouseover="this.style.color='var(--vv-text)'" onmouseout="this.style.color='var(--vv-muted)'">← Back</a>
+                    <a href="/" style="display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:700; color:var(--vv-muted); text-decoration:none;" onmouseover="this.style.color='var(--vv-text)'" onmouseout="this.style.color='var(--vv-muted)'">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                        Back
+                    </a>
                 </div>
                 <div class="vv-section-head">
+                    {% if active_category.icon_path %}
+                    <div style="width:32px; height:32px; border-radius:8px; background:var(--vv-surface2); border:1px solid var(--vv-border); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        {{ editable_icon(active_category.icon_path, active_category.id, 'w-4 h-4', '16') }}
+                    </div>
+                    {% else %}
+                    <svg class="w-5 h-5 flex-shrink-0" style="color:var(--vv-accent);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                    {% endif %}
                     <h1 class="vv-section-title">{{ editable(active_category.name,'category',active_category.id,'name') }}</h1>
                     <div class="vv-section-line"></div>
                     {% if packages|length > 0 %}<span style="font-size:11px; font-weight:700; color:var(--vv-dim); background:var(--vv-surface2); border:1px solid var(--vv-border); padding:2px 8px; border-radius:10px;">{{ packages|length }}</span>{% endif %}
@@ -106,9 +116,12 @@
 
             {# Welcome card #}
             <div class="vv-cut" style="background:var(--vv-surface); border:1px solid var(--vv-border); padding:24px 28px; animation: vv-up .4s ease both .1s;">
-                <p style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.1em; color:var(--vv-accent); margin-bottom:6px;">
-                    {{ editable(settings.welcome_text|default('Welcome'), 'settings', 0, 'welcome_text') }}
-                </p>
+                <div class="flex items-center gap-2 mb-2">
+                    <svg class="w-4 h-4 flex-shrink-0" style="color:var(--vv-accent);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    <p style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.1em; color:var(--vv-accent);">
+                        {{ editable(settings.welcome_text|default('Welcome'), 'settings', 0, 'welcome_text') }}
+                    </p>
+                </div>
                 <h2 style="font-family:'Barlow Condensed',sans-serif; font-size:32px; font-weight:900; color:var(--vv-text); text-transform:uppercase; line-height:1; margin-bottom:8px;">
                     {{ editable(store.name,'store',store.id,'store_name') }}
                 </h2>
@@ -130,6 +143,7 @@
             {# Category tiles #}
             <div style="animation: vv-up .4s ease both .2s;">
                 <div class="vv-section-head">
+                    <svg class="w-5 h-5 flex-shrink-0" style="color:var(--vv-accent);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
                     <h2 class="vv-section-title">Shop by Category</h2>
                     <div class="vv-section-line"></div>
                 </div>
@@ -140,7 +154,8 @@
             {% if featured_packages|default([])|length > 0 %}
             <div style="animation: vv-up .4s ease both .3s;">
                 <div class="vv-section-head">
-                    <h2 class="vv-section-title">⭐ Featured</h2>
+                    <svg class="w-5 h-5 flex-shrink-0 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <h2 class="vv-section-title">Featured</h2>
                     <div class="vv-section-line"></div>
                 </div>
                 <div class="vv-pkg-grid">
