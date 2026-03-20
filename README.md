@@ -1,6 +1,6 @@
 ---
 
-# 🌈 Catalyst MCSets Theme
+# Catalyst MCSets Theme
 
 A modern, lightweight, and highly animated **MCsets storefront theme** designed for clean UI, smooth interactions, and strong visual identity — without heavy glow spam.
 
