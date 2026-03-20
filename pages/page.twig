@@ -1,0 +1,11 @@
+{% extends 'layouts/base.twig' %}{% block title %}{{ page.title|striptags }} — {{ store.name|striptags }}{% endblock %}
+{% block content %}{% include 'components/navbar.twig' %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 pb-14 relative z-10" style="padding-top:calc(56px + 28px);">
+    <nav class="vv-breadcrumb mb-6"><a href="/">Home</a><span>/</span><span style="color:var(--vv-muted);">{{ page.title|striptags }}</span></nav>
+    <article class="vv-cut" style="background:var(--vv-surface); border:1px solid var(--vv-border); padding:32px 36px;">
+        <h1 style="font-family:'Barlow Condensed',sans-serif; font-size:36px; font-weight:900; color:var(--vv-text); text-transform:uppercase; margin-bottom:6px;">{{ page.title|striptags }}</h1>
+        {% if page.updated_at %}<p style="font-size:11px; color:var(--vv-dim); margin-bottom:24px;">Updated {{ page.updated_at|date('M j, Y') }}</p>{% endif %}
+        <div class="vv-prose">{{ page.content|raw }}</div>
+    </article>
+    <div class="mt-5 text-center"><a href="/" style="font-size:13px; font-weight:700; color:var(--vv-muted); text-decoration:none;" onmouseover="this.style.color='var(--vv-text)'" onmouseout="this.style.color='var(--vv-muted)'">← Back to Store</a></div>
+</div>{% endblock %}

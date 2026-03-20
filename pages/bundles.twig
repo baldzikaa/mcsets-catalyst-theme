@@ -1,0 +1,18 @@
+{% extends 'layouts/base.twig' %}{% block title %}Bundle Deals — {{ store.name|striptags }}{% endblock %}
+{% block content %}{% include 'components/navbar.twig' %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 pb-12 relative z-10" style="padding-top:calc(56px + 28px);" x-data="bundlesPage()">
+    <div class="vv-section-head mb-6"><h1 class="vv-section-title">Bundle Deals</h1><div class="vv-section-line"></div></div>
+    {% if bundles|length == 0 %}<div class="vv-card p-12 text-center"><p style="font-size:14px; font-weight:600; color:var(--vv-muted);">No active bundles right now. Check back later!</p></div>{% else %}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">{% for bundle in bundles %}<div class="vv-side-card p-0 overflow-hidden">
+        <div class="vv-side-card-head">
+            {% if bundle.discount_type == 'percentage' %}<span style="font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:900;" class="accent-text">{{ bundle.discount_value }}% OFF</span>{% else %}<span style="font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:900;" class="accent-text">£{{ bundle.discount_value }} OFF</span>{% endif %}
+            <span style="margin-left:6px; font-size:13px; font-weight:700; color:var(--vv-text);">{{ bundle.name }}</span>
+        </div>
+        <div class="p-5 space-y-3">
+            {% if bundle.description %}<p style="font-size:13px; color:var(--vv-muted);">{{ bundle.description }}</p>{% endif %}
+            <p style="font-size:12px; color:var(--vv-dim);">Min <strong style="color:var(--vv-text);">{{ bundle.min_items }} item{{ bundle.min_items > 1 ? 's' : '' }}</strong>{% if bundle.max_items %} (max {{ bundle.max_items }}){% endif %}</p>
+            {% if bundle.packages|length > 0 %}<div class="flex flex-wrap gap-1.5">{% for package in bundle.packages|slice(0,5) %}<a href="{{ package_url(package) }}" style="padding:3px 10px; border-radius:8px; font-size:11px; font-weight:700; color:var(--vv-muted); background:var(--vv-surface2); border:1px solid var(--vv-border); text-decoration:none;">{{ editable(package.name,'package',package.id,'name') }}</a>{% endfor %}{% if bundle.packages|length > 5 %}<span style="padding:3px 10px; border-radius:8px; font-size:11px; color:var(--vv-dim);">+{{ bundle.packages|length - 5 }} more</span>{% endif %}</div>{% else %}<p style="font-size:12px; color:var(--vv-green); font-weight:700;">✓ Applies to all packages</p>{% endif %}
+            <button @click="addBundleToCart([{% for p in bundle.packages %}{{ p.id }}{% if not loop.last %},{% endif %}{% endfor %}])" class="vv-btn vv-btn-primary w-full" style="font-size:12px; padding:9px;">Add Bundle to Cart</button>
+        </div>
+    </div>{% endfor %}</div>{% endif %}
+</div>{% endblock %}

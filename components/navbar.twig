@@ -1,0 +1,145 @@
+{# Desktop topbar #}
+<header class="vv-topbar">
+    <div class="vv-topbar-inner">
+        {# Logo #}
+        <a href="/" class="flex items-center gap-2.5 flex-shrink-0 mr-3 text-decoration-none" style="text-decoration:none;">
+            {% if store.logo %}
+                <img src="{{ storage_url(store.logo) }}" alt="{{ store.name|striptags }}" class="h-8 w-auto object-contain">
+            {% else %}
+                <span style="font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:900; color:var(--vv-text); text-transform:uppercase; letter-spacing:.04em;">{{ editable(store.name,'store',store.id,'store_name') }}</span>
+            {% endif %}
+        </a>
+
+        {# Category pills — desktop #}
+        <nav class="hidden lg:flex items-center gap-1.5 flex-1 overflow-x-auto scrollbar-hide">
+            <a href="/" class="vv-cat-pill {{ not active_category ? 'active' : '' }}">All</a>
+            {% for category in categories %}
+            <a href="{{ category_url(category) }}" class="vv-cat-pill {{ active_category.id == category.id ? 'active' : '' }}">{{ editable(category.name,'category',category.id,'name') }}</a>
+            {% endfor %}
+        </nav>
+
+        {# Actions #}
+        <div class="flex items-center gap-2 ml-auto lg:ml-2 flex-shrink-0">
+            {# GBP label #}
+            <span class="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-800" style="background:var(--vv-surface2); border:1px solid var(--vv-border); color:var(--vv-muted); font-weight:700;">GBP</span>
+
+            {# Cart #}
+            <button @click="$dispatch('toggle-cart')"
+                    class="flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-bold transition-all"
+                    style="background:var(--vv-surface2); border:1px solid var(--vv-border); color:var(--vv-text);"
+                    onmouseover="this.style.borderColor='var(--vv-accent)'"
+                    onmouseout="this.style.borderColor='var(--vv-border)'">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                <span x-show="items && items.length" x-text="formatPrice(total)" x-cloak class="hidden sm:inline"></span>
+                <span x-show="!items || !items.length" class="hidden sm:inline">Cart</span>
+                <span x-show="items && items.length > 0" x-text="count" x-cloak
+                      class="min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center accent-bg"></span>
+            </button>
+
+            {# Account #}
+            <div x-data="{ player: JSON.parse(localStorage.getItem('mcsets_player') || 'null') }"
+                 x-init="window.addEventListener('storage', () => player = JSON.parse(localStorage.getItem('mcsets_player') || 'null'))">
+                <template x-if="player">
+                    <a href="/account" class="flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all"
+                       style="background:var(--vv-surface2); border:1px solid var(--vv-border);"
+                       onmouseover="this.style.borderColor='var(--vv-border-hover)'"
+                       onmouseout="this.style.borderColor='var(--vv-border)'">
+                        <img :src="player.avatar_url" alt="" class="w-6 h-6 rounded-md object-cover">
+                        <span class="hidden sm:block text-sm font-bold max-w-[100px] truncate" style="color:var(--vv-text);" x-text="player.username"></span>
+                    </a>
+                </template>
+                <template x-if="!player">
+                    <button @click="$dispatch('open-login')" class="vv-btn vv-btn-primary" style="padding:7px 16px; font-size:12px;">
+                        Log In
+                    </button>
+                </template>
+            </div>
+        </div>
+    </div>
+</header>
+
+{# Login Modal #}
+<div x-data="{ ...playerAuth(), wasOpen: false }"
+     @open-login.window="showLoginModal = true; wasOpen = true"
+     x-effect="if(wasOpen && !showLoginModal && player) { window.location.reload() }">
+    <div x-show="showLoginModal" x-cloak class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center"
+         @keydown.escape.window="showLoginModal = false">
+        <div class="absolute inset-0 vv-modal-back" @click="showLoginModal = false" x-transition.opacity></div>
+        <div class="relative w-full sm:max-w-sm overflow-hidden rounded-t-2xl sm:rounded-2xl vv-modal"
+             x-transition:enter="ease-out duration-250"
+             x-transition:enter-start="opacity-0 translate-y-4 sm:scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave="ease-in duration-150"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0 translate-y-4">
+
+            {# Banner/logo header #}
+            <div class="relative h-28 overflow-hidden">
+                {% if store.banner %}
+                    <img src="{{ storage_url(store.banner) }}" alt="" class="absolute inset-0 w-full h-full object-cover" style="filter:brightness(.35) saturate(1.2);">
+                {% else %}
+                    <div class="absolute inset-0" style="background:linear-gradient(135deg, color-mix(in srgb, var(--vv-accent), #0c0e14 70%), #0c0e14);"></div>
+                {% endif %}
+                <div class="absolute inset-0" style="background:linear-gradient(to bottom, transparent, rgba(19,22,31,.85));"></div>
+                <button @click="showLoginModal = false" class="absolute top-3 right-3 w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(0,0,0,.4); border:1px solid rgba(255,255,255,.12);">
+                    <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    {% if store.logo %}
+                        <img src="{{ storage_url(store.logo) }}" alt="{{ store.name|striptags }}" class="max-h-14 max-w-[160px] object-contain drop-shadow-xl">
+                    {% else %}
+                        <span style="font-family:'Barlow Condensed',sans-serif; font-size:24px; font-weight:900; color:#fff; text-transform:uppercase; text-shadow:0 2px 8px rgba(0,0,0,.5);">{{ store.name|striptags }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="px-6 pt-5 pb-6">
+                <div class="text-center mb-4">
+                    <h3 class="font-bold text-base" style="color:var(--vv-text);">Login with Minecraft</h3>
+                    <p class="text-xs mt-0.5" style="color:var(--vv-muted);">Enter your {{ store.player_label|default('Minecraft username') }}</p>
+                </div>
+                <input type="text" x-model="loginUsername" @keydown.enter="loginWithUsername()"
+                       placeholder="Username" class="vv-input text-center mb-3" maxlength="16" autocomplete="off">
+                <p x-show="loginError" x-text="loginError" x-cloak class="accent-text text-xs text-center mb-3"></p>
+                <button @click="loginWithUsername()" :disabled="loginLoading || loginUsername.length < 3"
+                        class="vv-btn vv-btn-primary w-full" style="font-size:14px;">
+                    <span x-show="!loginLoading">Continue →</span>
+                    <span x-show="loginLoading" x-cloak class="flex items-center gap-2"><span class="vv-spinner"></span>Logging in...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Mobile category drawer #}
+<div x-data="{ open: false }" @toggle-mobile-cats.window="open = true">
+    <div x-show="open" x-cloak class="fixed inset-0 vv-modal-back z-50" @click="open = false" x-transition.opacity></div>
+    <div x-show="open" x-cloak
+         x-transition:enter="transform transition ease-out duration-250"
+         x-transition:enter-start="-translate-x-full"
+         x-transition:enter-end="translate-x-0"
+         x-transition:leave="transform transition ease-in duration-200"
+         x-transition:leave-start="translate-x-0"
+         x-transition:leave-end="-translate-x-full"
+         class="fixed left-0 top-0 h-full w-[80%] max-w-[280px] z-50 flex flex-col overflow-y-auto"
+         style="background:var(--vv-surface); border-right:1px solid var(--vv-border);">
+        <div class="flex items-center justify-between px-4 h-14 flex-shrink-0" style="border-bottom:1px solid var(--vv-border);">
+            <span style="font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:800; color:var(--vv-text); text-transform:uppercase;">Categories</span>
+            <button @click="open = false" class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:var(--vv-surface2);">
+                <svg class="w-4 h-4" style="color:var(--vv-muted);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="flex-1 p-3 space-y-1 overflow-y-auto">
+            <a href="/" @click="open = false" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold transition-colors {{ not active_category ? 'accent-text' : '' }}" style="{{ not active_category ? 'background:var(--vv-accent-ghost)' : 'color:var(--vv-muted)' }}">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                All Items
+            </a>
+            {% for category in categories %}
+            <a href="{{ category_url(category) }}" @click="open = false" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold transition-colors {{ active_category.id == category.id ? 'accent-text' : '' }}" style="{{ active_category.id == category.id ? 'background:var(--vv-accent-ghost)' : 'color:var(--vv-muted)' }}">
+                {{ editable_icon(category.icon_path, category.id, 'w-4 h-4 shrink-0', '16') }}
+                {{ editable(category.name,'category',category.id,'name') }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>

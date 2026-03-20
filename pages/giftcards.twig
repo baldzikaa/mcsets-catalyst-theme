@@ -1,0 +1,24 @@
+{% extends 'layouts/base.twig' %}{% block title %}Gift Cards — {{ store.name|striptags }}{% endblock %}
+{% block content %}{% include 'components/navbar.twig' %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 pb-12 relative z-10" style="padding-top:calc(56px + 28px);" x-data="giftCardPage()">
+    <div class="vv-section-head mb-6"><h1 class="vv-section-title">Gift Cards</h1><div class="vv-section-line"></div></div>
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-5">
+        <div class="lg:col-span-3 vv-side-card p-0 overflow-hidden">
+            <div class="vv-side-card-head">Buy a Gift Card</div>
+            <div class="p-5 space-y-4">
+                {% if gift_cards.amounts is defined and gift_cards.amounts|length > 0 %}<div class="flex flex-wrap gap-2">{% for amount in gift_cards.amounts %}<button @click="customAmount = {{ amount }}" :class="parseFloat(customAmount) === {{ amount }} ? 'accent-bg text-white' : ''" class="px-4 py-2 rounded-xl text-sm font-bold transition-all" style="border:1.5px solid var(--vv-border); color:var(--vv-muted);">${{ amount }}</button>{% endfor %}</div>{% endif %}
+                <div class="relative"><span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold" style="color:var(--vv-muted);">£</span><input type="number" x-model="customAmount" min="1" max="500" step="0.01" placeholder="Enter amount" class="vv-input pl-7"></div>
+                <button @click="addToCart()" :disabled="!selectedAmount || addingToCart" class="vv-btn vv-btn-primary w-full"><span x-show="!addingToCart">Add to Cart</span><span x-show="addingToCart" x-cloak class="flex items-center gap-2"><span class="vv-spinner"></span>Adding...</span></button>
+            </div>
+        </div>
+        <div class="lg:col-span-2 vv-side-card p-0 overflow-hidden sticky top-6">
+            <div class="vv-side-card-head">Check Balance</div>
+            <div class="p-5 space-y-3">
+                <div><label style="font-size:11px; font-weight:700; color:var(--vv-dim); text-transform:uppercase; margin-bottom:4px; display:block;">Username</label><input type="text" x-model="username" placeholder="Steve" class="vv-input"></div>
+                <div><label style="font-size:11px; font-weight:700; color:var(--vv-dim); text-transform:uppercase; margin-bottom:4px; display:block;">Gift Card Code</label><input type="text" x-model="giftCardCode" placeholder="GIFT-XXXX-XXXX" class="vv-input" style="font-family:monospace; font-size:13px; text-transform:uppercase;" @input="giftCardCode = giftCardCode.toUpperCase()"></div>
+                <button @click="checkBalance()" :disabled="!username || !giftCardCode || checkingBalance" class="vv-btn vv-btn-secondary w-full"><span x-show="!checkingBalance">Check Balance</span><span x-show="checkingBalance" x-cloak>Checking...</span></button>
+                <template x-if="balanceResult"><div x-cloak class="p-4 rounded-xl text-center" :style="balanceResult.valid ? 'background:rgba(46,204,113,.08); border:1px solid rgba(46,204,113,.2)' : 'background:rgba(231,76,60,.08); border:1px solid rgba(231,76,60,.2)'"><template x-if="balanceResult.valid"><div><div style="font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:900; color:var(--vv-green);" x-text="'£' + balanceResult.balance.toFixed(2)"></div><p style="font-size:12px; color:var(--vv-muted); margin-top:2px;">Available balance</p></div></template><template x-if="!balanceResult.valid"><p style="font-size:13px; color:#ef4444; font-weight:600;" x-text="balanceResult.message"></p></template></div></template>
+            </div>
+        </div>
+    </div>
+</div>{% endblock %}

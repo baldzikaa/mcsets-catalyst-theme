@@ -1,0 +1,42 @@
+{% extends 'layouts/base.twig' %}{% block title %}Account — {{ store.name|striptags }}{% endblock %}
+{% block content %}{% include 'components/navbar.twig' %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 pb-12 relative z-10" style="padding-top:calc(56px + 28px);" x-data="accountPage()">
+    <template x-if="requiresVerification">
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4"><div class="absolute inset-0 vv-modal-back"></div>
+        <div class="relative vv-modal w-full max-w-sm overflow-hidden">
+            <div class="p-5" style="border-bottom:1px solid var(--vv-border);"><h3 style="font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; color:var(--vv-text); text-transform:uppercase;">Verify Account</h3></div>
+            <div class="p-5 text-center"><p style="font-size:13px; color:var(--vv-muted); margin-bottom:16px;">Run <code style="background:var(--vv-surface2); padding:2px 6px; border-radius:4px; font-size:12px;">/verify</code> in-game to get your code.</p>
+            <input type="text" x-model="verifyCode" @keydown.enter="submitVerification()" placeholder="Enter code" class="vv-input text-center mb-3" style="font-size:22px; letter-spacing:.2em;" maxlength="6" pattern="[0-9]*" inputmode="numeric">
+            <p x-show="verifyError" x-text="verifyError" x-cloak class="accent-text text-xs mb-3"></p>
+            <button @click="submitVerification()" :disabled="verifyLoading || verifyCode.length !== 6" class="vv-btn vv-btn-primary w-full" :disabled="verifyLoading">
+                <span x-show="!verifyLoading">Verify</span><span x-show="verifyLoading" x-cloak class="flex items-center gap-2"><span class="vv-spinner"></span>Verifying...</span>
+            </button>
+            <button @click="logout()" class="w-full mt-2 py-2 text-sm font-bold" style="color:var(--vv-dim);">Use different account</button>
+            </div></div></div>
+    </template>
+    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
+        <template x-if="player"><div class="flex items-center gap-4"><img :src="player.avatar_url" alt="" class="w-14 h-14 rounded-xl" style="border:2px solid var(--vv-border);"><div><h1 style="font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:900; color:var(--vv-text); text-transform:uppercase;" x-text="player.username"></h1><p style="font-size:12px; color:var(--vv-muted);">Member of {{ editable(store.name,'store',store.id,'store_name') }}</p></div></div></template>
+        <div class="flex-1"></div>
+        <button @click="logout()" class="vv-btn" style="background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.2); color:#ef4444; padding:8px 18px; font-size:12px;">Logout</button>
+    </div>
+    <div class="grid grid-cols-3 gap-3 mb-8">
+        <div class="vv-card p-5"><p style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--vv-dim); margin-bottom:6px;">Purchases</p><p style="font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:900; color:var(--vv-text);" x-text="purchases.length"></p></div>
+        <div class="vv-card p-5"><p style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--vv-dim); margin-bottom:6px;">Total Spent</p><p style="font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:900;" class="accent-text" x-text="formatPrice(totalSpent)"></p></div>
+        <div class="vv-card p-5"><p style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--vv-dim); margin-bottom:6px;">Status</p><div class="flex items-center gap-2 mt-1"><span style="width:8px; height:8px; border-radius:50%; background:#2ecc71;"></span><p style="font-size:13px; font-weight:700; color:var(--vv-text);">Active</p></div></div>
+    </div>
+    <div class="vv-side-card">
+        <div class="vv-side-card-head"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>Purchase History</div>
+        <template x-if="loading"><div class="p-10 text-center"><span class="vv-spinner mx-auto" style="display:block;"></span></div></template>
+        <template x-if="!loading && purchases.length === 0"><div class="p-10 text-center"><p style="font-size:14px; font-weight:600; color:var(--vv-muted);">No purchases yet.</p><a href="/" class="vv-btn vv-btn-primary mt-4" style="font-size:12px; padding:8px 20px;">Browse Store</a></div></template>
+        <template x-if="!loading && purchases.length > 0"><div>
+            <template x-for="purchase in purchases" :key="purchase.id">
+                <div class="flex items-center gap-4 p-4" style="border-bottom:1px solid var(--vv-border);">
+                    <template x-if="purchase.package && purchase.package.image_path"><img :src="'/storage/' + purchase.package.image_path" alt="" class="w-12 h-12 rounded-xl object-cover flex-shrink-0"></template>
+                    <template x-if="!purchase.package || !purchase.package.image_path"><div class="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center" style="background:var(--vv-surface2);"><svg class="w-5 h-5" style="color:var(--vv-dim);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></div></template>
+                    <div class="flex-1 min-w-0"><p style="font-size:13px; font-weight:700; color:var(--vv-text);" x-text="purchase.package?.name || 'Unknown'"></p><p style="font-size:11px; color:var(--vv-dim);" x-text="formatDate(purchase.created_at)"></p></div>
+                    <div class="text-right flex-shrink-0"><p class="price-text" style="font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:800;" x-text="formatPrice(purchase.payment_amount)"></p><span style="font-size:10px; font-weight:700; text-transform:uppercase; padding:2px 6px; border-radius:4px;" :style="purchase.status === 'delivered' ? 'background:rgba(46,204,113,.12); color:#2ecc71;' : purchase.status === 'pending' ? 'background:rgba(241,196,15,.12); color:#f1c40f;' : 'background:rgba(231,76,60,.12); color:#e74c3c;'" x-text="purchase.status"></span></div>
+                </div>
+            </template>
+        </div></template>
+    </div>
+</div>{% endblock %}

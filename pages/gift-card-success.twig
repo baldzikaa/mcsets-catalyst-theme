@@ -1,0 +1,16 @@
+{% extends 'layouts/base.twig' %}{% block title %}Gift Card Purchased — {{ store.name|striptags }}{% endblock %}
+{% block content %}{% include 'components/navbar.twig' %}
+<div class="max-w-md mx-auto px-4 pb-14 text-center relative z-10" style="padding-top:calc(56px + 60px);">
+    <div class="w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center" style="background:linear-gradient(135deg,#8b5cf6,#ec4899);"><svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg></div>
+    <h1 style="font-family:'Barlow Condensed',sans-serif; font-size:34px; font-weight:900; color:var(--vv-text); text-transform:uppercase; margin-bottom:6px;">Gift Card Ready!</h1>
+    <p style="font-size:13px; color:var(--vv-muted); margin-bottom:24px;">Share the code below to use as store credit.</p>
+    <div class="vv-card p-6 mb-6" x-data="{ copied: false }">
+        <div style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--vv-dim); margin-bottom:8px;">Gift Card Code</div>
+        <div class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl mb-4" style="background:var(--vv-surface2);">
+            <span style="font-size:20px; font-family:monospace; font-weight:800; color:var(--vv-text); letter-spacing:.1em;">{{ gift_card.code }}</span>
+            <button @click="navigator.clipboard.writeText('{{ gift_card.code }}'); copied = true; setTimeout(() => copied = false, 2000)" class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:var(--vv-surface3);"><template x-if="!copied"><svg class="w-4 h-4" style="color:var(--vv-muted);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></template><template x-if="copied"><svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></template></button>
+        </div>
+        <div class="flex justify-center gap-8"><div><div style="font-size:10px; font-weight:800; text-transform:uppercase; color:var(--vv-dim);">Balance</div><div style="font-family:'Barlow Condensed',sans-serif; font-size:24px; font-weight:900; color:var(--vv-green);">{{ gift_card.balance|localized_price }}</div></div>{% if gift_card.expires_at %}<div><div style="font-size:10px; font-weight:800; text-transform:uppercase; color:var(--vv-dim);">Expires</div><div style="font-size:14px; font-weight:700; color:var(--vv-muted);">{{ gift_card.expires_at }}</div></div>{% endif %}</div>
+    </div>
+    <a href="/" class="vv-btn vv-btn-primary" style="font-size:14px;">Start Shopping</a>
+</div>{% endblock %}

@@ -1,0 +1,192 @@
+{% extends 'layouts/base.twig' %}
+{% block title %}{{ package.name|striptags }} — {{ store.name|striptags }}{% endblock %}
+
+{% block content %}
+{% include 'components/navbar.twig' %}
+
+{# Blurred background #}
+<div class="fixed inset-0 z-0 pointer-events-none" style="top:56px;">
+    {% if package.image_path %}
+        <img src="{{ storage_url(package.image_path) }}" alt="" class="vv-hero-bg">
+    {% elseif store.banner %}
+        <img src="{{ storage_url(store.banner) }}" alt="" class="vv-hero-bg">
+    {% else %}
+        <div class="absolute inset-0" style="background:linear-gradient(160deg, color-mix(in srgb, var(--vv-accent), #0c0e14 80%), #0c0e14 60%);"></div>
+    {% endif %}
+    <div class="vv-hero-overlay"></div>
+</div>
+
+<div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pb-16" style="padding-top:calc(56px + 28px);">
+
+    {# Breadcrumb #}
+    <nav class="vv-breadcrumb mb-6">
+        <a href="/">Home</a>
+        {% if package.category %}<span>/</span><a href="{{ category_url(package.category) }}">{{ editable(package.category.name,'category',package.category.id,'name') }}</a>{% endif %}
+        <span>/</span><span style="color:var(--vv-muted);">{{ editable(package.name,'package',package.id,'name') }}</span>
+    </nav>
+
+    <div class="grid lg:grid-cols-[1fr_300px] gap-6">
+
+        {# Left col #}
+        <div class="space-y-4">
+
+            {# Hero product card #}
+            <div class="vv-cut overflow-hidden" style="background:var(--vv-surface); border:1px solid var(--vv-border);">
+                {# Image banner #}
+                {% if package.image_path %}
+                <div class="relative overflow-hidden" style="height:240px; sm:height:300px;">
+                    <img src="{{ storage_url(package.image_path) }}" alt="{{ package.name }}"
+                         class="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                         style="filter:brightness(.85);">
+                    <div class="absolute inset-0" style="background:linear-gradient(to bottom, transparent 40%, var(--vv-surface) 100%);"></div>
+
+                    {# Category badge #}
+                    {% if package.category %}
+                    <div class="absolute top-4 left-4">
+                        <a href="{{ category_url(package.category) }}" style="display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:20px; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#fff; background:var(--vv-accent); text-decoration:none;">
+                            {{ editable(package.category.name,'category',package.category.id,'name') }}
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    {# Discount badge #}
+                    {% if package.original_price and package.original_price > package.price %}
+                    {% set discount = ((1 - package.price / package.original_price) * 100)|round %}
+                    <div class="absolute top-4 right-4" style="background:#e53e6a; color:#fff; padding:5px 12px; border-radius:20px; font-size:11px; font-weight:800; text-transform:uppercase;">
+                        −{{ discount }}% OFF
+                    </div>
+                    {% endif %}
+
+                    {# Title over image #}
+                    <div class="absolute bottom-0 left-0 right-0 px-6 pb-5">
+                        <h1 style="font-family:'Barlow Condensed',sans-serif; font-size:36px; font-weight:900; color:#fff; text-transform:uppercase; line-height:1; text-shadow:0 2px 12px rgba(0,0,0,.6);">
+                            {{ editable(package.name,'package',package.id,'name') }}
+                        </h1>
+                    </div>
+                </div>
+                {% else %}
+                <div class="px-6 pt-6">
+                    {% if package.category %}<a href="{{ category_url(package.category) }}" style="display:inline-flex; align-items:center; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:800; text-transform:uppercase; color:#fff; background:var(--vv-accent); text-decoration:none; margin-bottom:10px;">{{ editable(package.category.name,'category',package.category.id,'name') }}</a>{% endif %}
+                    <h1 style="font-family:'Barlow Condensed',sans-serif; font-size:36px; font-weight:900; color:var(--vv-text); text-transform:uppercase; line-height:1;">{{ editable(package.name,'package',package.id,'name') }}</h1>
+                </div>
+                {% endif %}
+
+                <div class="px-6 py-5">
+                    {{ addon_zone('storefront.package_above') }}
+
+                    {% if package.description %}
+                    <div class="vv-prose mb-4">{{ editable(package.description,'package',package.id,'description') }}</div>
+                    {% endif %}
+
+                    {{ addon_zone('storefront.package_below') }}
+
+                    {# Preorder notice #}
+                    {% if is_preorder_pending(package) %}
+                    <div class="flex items-center gap-3 px-4 py-3 rounded-xl mb-4" style="background:rgba(217,119,6,.1); border:1px solid rgba(217,119,6,.25);">
+                        <svg class="w-4 h-4 flex-shrink-0" style="color:#d97706;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><polyline points="12,6 12,12 16,14" stroke-width="2"/></svg>
+                        <p style="font-size:13px; color:#fbbf24; font-weight:600;">{% if package.preorder_message %}{{ package.preorder_message }}{% else %}Available {{ format_preorder_date(package,'M j, Y') }}{% endif %}</p>
+                    </div>
+                    {% endif %}
+
+                    {# Details pills #}
+                    <div class="flex flex-wrap gap-2">
+                        {% if package.one_time_purchase %}
+                        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg" style="background:var(--vv-surface2); border:1px solid var(--vv-border); font-size:11px; font-weight:700; color:var(--vv-muted);">
+                            <svg class="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            One-time purchase
+                        </div>
+                        {% endif %}
+                        {% if package.require_online %}
+                        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg" style="background:var(--vv-surface2); border:1px solid var(--vv-border); font-size:11px; font-weight:700; color:var(--vv-muted);">
+                            <svg class="w-3.5 h-3.5" style="color:var(--vv-accent);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/></svg>
+                            Must be online
+                        </div>
+                        {% endif %}
+                        {% if package.expiry_days %}
+                        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg" style="background:var(--vv-surface2); border:1px solid var(--vv-border); font-size:11px; font-weight:700; color:var(--vv-muted);">
+                            <svg class="w-3.5 h-3.5" style="color:#d97706;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            {{ package.expiry_days }}-day duration
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Right — purchase panel #}
+        <div class="space-y-3 lg:sticky lg:top-20 lg:self-start">
+
+            {# Price card #}
+            <div class="vv-cut" style="background:var(--vv-surface); border:1px solid var(--vv-border); overflow:hidden;">
+                {# Accent stripe #}
+                <div style="height:3px; background:var(--vv-accent);"></div>
+                <div class="p-5 space-y-4">
+                    <div>
+                        <p style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.1em; color:var(--vv-dim); margin-bottom:6px;">Price</p>
+                        <div class="flex items-baseline gap-3">
+                            <span style="font-family:'Barlow Condensed',sans-serif; font-size:40px; font-weight:900; color:var(--vv-green); line-height:1;">{{ price(package.price) }}</span>
+                            {% if package.original_price and package.original_price > package.price %}
+                            <span style="font-size:18px; text-decoration:line-through; color:var(--vv-dim);">{{ price(package.original_price) }}</span>
+                            {% endif %}
+                        </div>
+                        {% if package.original_price and package.original_price > package.price %}
+                        <p style="font-size:12px; color:var(--vv-green); font-weight:700; margin-top:2px;">You save {{ price(package.original_price - package.price) }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div style="height:1px; background:var(--vv-border);"></div>
+
+                    <button @click="buyNow({{ package|json_encode }})" :disabled="buyingNow === {{ package.id }}"
+                            class="vv-btn vv-btn-primary w-full" style="font-size:14px; padding:13px; letter-spacing:.06em;">
+                        <span x-show="buyingNow !== {{ package.id }}">
+                            {% if is_preorder_pending(package) %}⏰ Pre-order Now{% else %}⚡ Buy Now{% endif %}
+                        </span>
+                        <span x-show="buyingNow === {{ package.id }}" x-cloak class="flex items-center gap-2"><span class="vv-spinner"></span>Processing...</span>
+                    </button>
+
+                    <button @click="addItem({{ package|json_encode }})"
+                            :disabled="hasItem({{ package.id }}) || loading === {{ package.id }}"
+                            class="vv-btn vv-btn-secondary w-full"
+                            :class="hasItem({{ package.id }}) ? 'opacity-50 cursor-not-allowed' : ''">
+                        <span x-show="!hasItem({{ package.id }}) && loading !== {{ package.id }}" class="flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                            Add to Cart
+                        </span>
+                        <span x-show="hasItem({{ package.id }})" x-cloak class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            In Cart
+                        </span>
+                        <span x-show="loading === {{ package.id }}" x-cloak class="flex items-center gap-2"><span class="vv-spinner"></span>Adding...</span>
+                    </button>
+
+                    {% if store.wishlist_enabled %}
+                    <button @click="$store.wishlist.toggle({{ package.id }})"
+                            class="w-full flex items-center justify-center gap-2 py-2 text-xs font-bold transition-colors uppercase"
+                            :class="$store.wishlist.isWishlisted({{ package.id }}) ? 'text-red-400' : ''"
+                            style="color:var(--vv-dim);">
+                        <svg class="w-3.5 h-3.5" :class="$store.wishlist.isWishlisted({{ package.id }}) ? 'fill-current' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                        <span x-show="!$store.wishlist.isWishlisted({{ package.id }})">Wishlist</span>
+                        <span x-show="$store.wishlist.isWishlisted({{ package.id }})" x-cloak>Wishlisted</span>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# Trust badges #}
+            <div class="grid grid-cols-3 gap-2">
+                {% for badge in [
+                    {'icon': 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', 'color': '#2ecc71', 'label': 'Secure'},
+                    {'icon': 'M13 10V3L4 14h7v7l9-11h-7z', 'color': 'var(--vv-accent)', 'label': 'Instant'},
+                    {'icon': 'M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'color': '#3498db', 'label': 'Support'}
+                ] %}
+                <div style="background:var(--vv-surface); border:1px solid var(--vv-border); border-radius:var(--vv-r); padding:10px; text-align:center;">
+                    <svg class="w-5 h-5 mx-auto mb-1.5" style="color:{{ badge.color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ badge.icon }}"/></svg>
+                    <p style="font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--vv-dim);">{{ badge.label }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

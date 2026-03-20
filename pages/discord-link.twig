@@ -1,0 +1,130 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Link Discord - {{ store.name|striptags }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col">
+    {# Navbar #}
+    {% include 'components/navbar.twig' %}
+
+    {# Hero Banner - Smaller #}
+    <div class="relative h-[200px] sm:h-[240px]">
+        {% if store.banner %}
+            <img src="{{ storage_url(store.banner) }}" alt="" class="absolute inset-0 w-full h-full object-cover">
+        {% else %}
+            <div class="absolute inset-0 bg-gradient-to-b from-[#2a2a3e] to-[#16161a]"></div>
+        {% endif %}
+        <div class="absolute inset-0 bg-gradient-to-t from-[#16161a] via-[#16161a]/40 to-transparent"></div>
+
+        <div class="absolute inset-0 flex items-center justify-center">
+            <a href="/" class="hover:scale-105 transition-transform">
+                {% if store.logo %}
+                    <img src="{{ storage_url(store.logo) }}" alt="{{ store.name|striptags }}" class="max-h-24 sm:max-h-32 drop-shadow-2xl">
+                {% else %}
+                    <h1 class="text-4xl sm:text-5xl font-black text-white drop-shadow-lg">{{ editable(store.name, 'store', store.id, 'store_name') }}</h1>
+                {% endif %}
+            </a>
+        </div>
+    </div>
+
+    {# Main Content #}
+    <div class="max-w-2xl mx-auto px-6 py-8 flex-1 w-full">
+        {# Back link #}
+        <div class="mb-6">
+            <a href="/" class="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Back to Store
+            </a>
+        </div>
+
+        <div class="bg-[#1e1e24] rounded-2xl overflow-hidden">
+            {# Header #}
+            <div class="p-6 sm:p-8 border-b border-white/5">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 bg-[#5865F2]">
+                        <svg class="w-7 h-7 text-white" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.996 2.02.05.05 0 0 0 .056-.019c.308-.42.582-.863.818-1.329a.05.05 0 0 0-.01-.059.05.05 0 0 0-.018-.011 8.8 8.8 0 0 1-1.248-.595.05.05 0 0 1-.005-.084q.062-.047.124-.094a.05.05 0 0 1 .052-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.063.047.124.094a.05.05 0 0 1-.004.084 8.3 8.3 0 0 1-1.249.594.05.05 0 0 0-.03.07c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-bold text-white">Link Discord</h1>
+                        <p class="text-white/50 text-sm mt-1">Connect your Discord account to receive roles</p>
+                    </div>
+                </div>
+            </div>
+
+            {# Content #}
+            <div class="p-6 sm:p-8" x-data="discordLinkPage()">
+                {% if error %}
+                    <div class="p-4 rounded-xl bg-red-500/10 border border-red-500/20 mb-6">
+                        <p class="text-red-400 text-sm">{{ error }}</p>
+                    </div>
+                {% endif %}
+
+                {% if discord_link %}
+                    {# Already linked #}
+                    <div class="text-center py-8">
+                        <div class="w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-10 h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Discord Linked!</h3>
+                        <p class="text-white/60 mb-4">Your account is linked to <span class="text-white font-semibold">{{ discord_link.discord_username }}</span></p>
+
+                        <button @click="unlinkDiscord()" :disabled="unlinking"
+                                class="px-6 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-colors disabled:opacity-50">
+                            <span x-show="!unlinking">Unlink Discord</span>
+                            <span x-show="unlinking">Unlinking...</span>
+                        </button>
+                    </div>
+                {% elseif player_username %}
+                    {# Has username, can link #}
+                    <div class="text-center py-8">
+                        <p class="text-white/60 mb-2">Linking Discord for:</p>
+                        <p class="text-xl font-bold text-white mb-6">{{ player_username }}</p>
+
+                        {% if oauth_url %}
+                            <a href="{{ oauth_url }}"
+                               class="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-[#5865F2] hover:bg-[#4752C4] text-white font-semibold transition-colors">
+                                <svg class="w-6 h-6" viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.996 2.02.05.05 0 0 0 .056-.019c.308-.42.582-.863.818-1.329a.05.05 0 0 0-.01-.059.05.05 0 0 0-.018-.011 8.8 8.8 0 0 1-1.248-.595.05.05 0 0 1-.005-.084q.062-.047.124-.094a.05.05 0 0 1 .052-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.063.047.124.094a.05.05 0 0 1-.004.084 8.3 8.3 0 0 1-1.249.594.05.05 0 0 0-.03.07c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612"/>
+                                </svg>
+                                Connect with Discord
+                            </a>
+                        {% else %}
+                            <p class="text-white/50">Discord OAuth is not configured for this store.</p>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    {# Need to enter username first #}
+                    <div class="py-4">
+                        <p class="text-white/60 mb-6 text-center">Enter your {{ store.player_label|default('Minecraft Username') }} to link your Discord account.</p>
+
+                        <form @submit.prevent="setUsername()" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-white/70 mb-2">{{ store.player_label|default('Minecraft Username') }}</label>
+                                <input type="text" x-model="username" required
+                                       class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-white/20"
+                                       placeholder="Enter your username">
+                            </div>
+
+                            <button type="submit" :disabled="submitting || !username"
+                                    class="w-full py-4 rounded-xl font-semibold text-white transition-colors disabled:opacity-50"
+                                    style="background-color: {{ store.accent_color }}">
+                                <span x-show="!submitting">Continue</span>
+                                <span x-show="submitting">Loading...</span>
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{# Discord link JS is now injected via mcsets_scripts() for CSP compatibility #}
+{% endblock %}

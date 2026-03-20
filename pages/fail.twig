@@ -1,0 +1,9 @@
+{% extends 'layouts/base.twig' %}{% block title %}Payment Failed — {{ store.name|striptags }}{% endblock %}
+{% block content %}{% include 'components/navbar.twig' %}
+<div class="max-w-lg mx-auto px-4 pb-16 text-center relative z-10" style="padding-top:calc(56px + 60px);">
+    <div class="w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center" style="background:rgba(231,76,60,.1); border:1px solid rgba(231,76,60,.25);"><svg class="w-7 h-7" style="color:#e74c3c;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></div>
+    <h1 style="font-family:'Barlow Condensed',sans-serif; font-size:34px; font-weight:900; color:var(--vv-text); text-transform:uppercase; margin-bottom:8px;">Payment Failed</h1>
+    <p style="font-size:14px; color:var(--vv-muted); margin-bottom:24px;">Your payment could not be processed. Please try again or use a different method.</p>
+    {% if error %}<div class="vv-card p-4 mb-6 text-left" style="border-color:rgba(231,76,60,.2);"><p style="font-size:10px; font-weight:800; text-transform:uppercase; color:#e74c3c; margin-bottom:4px;">Error</p><p style="font-size:13px; color:var(--vv-text);">{{ error }}</p></div>{% endif %}
+    <div class="flex gap-3 justify-center"><a href="/checkout" class="vv-btn vv-btn-primary">Try Again</a><a href="/" class="vv-btn vv-btn-secondary">Back to Store</a></div>
+</div>{% include 'components/footer.twig' %}{% endblock %}

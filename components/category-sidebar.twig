@@ -1,0 +1,17 @@
+{# 2-column horizontal category tiles #}
+<div class="vv-cat-grid">
+    {% for category in categories %}
+    <a href="{{ category_url(category) }}" class="vv-cat-tile" style="animation: vv-up .35s ease both {{ loop.index * 0.07 }}s;">
+        <div class="vv-cat-tile-bg" {% if category.color %}style="background: {{ category.color }};"{% endif %}></div>
+        {% if category.image_path %}
+            <img src="{{ storage_url(category.image_path) }}" alt="" class="vv-cat-tile-img">
+        {% endif %}
+        <div class="vv-cat-tile-body">
+            <div class="vv-cat-tile-label">{{ editable(category.name,'category',category.id,'name') }}</div>
+            <div class="vv-cat-tile-sub">
+                Click to view <span class="vv-cat-arrow">→</span>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>

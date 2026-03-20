@@ -1,0 +1,19 @@
+{% extends 'layouts/base.twig' %}{% block title %}Checkout — {{ store.name|striptags }}{% endblock %}
+{% block content %}{% include 'components/navbar.twig' %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 pb-12 relative z-10" style="padding-top:calc(56px + 28px);" x-data="checkoutPage()">
+    <div class="flex items-center gap-3 mb-7">
+        <a href="/" class="w-8 h-8 rounded-xl flex items-center justify-center vv-btn-secondary" style="padding:0;"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg></a>
+        <h1 style="font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:900; color:var(--vv-text); text-transform:uppercase;">Checkout</h1>
+    </div>
+    {% if error %}<div class="vv-card p-4 mb-5" style="border-color:rgba(231,76,60,.2); background:rgba(231,76,60,.06);"><p style="font-size:13px; color:#ef4444;">{{ error }}</p></div>{% endif %}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="space-y-4"><section class="vv-side-card p-0 overflow-hidden"><div class="vv-side-card-head">Your Information</div><div class="p-5">{{ hook('checkout.player_info') }}</div></section></div>
+        <div class="space-y-4">
+            <section class="vv-side-card p-0 overflow-hidden"><div class="vv-side-card-head">Order Summary</div><div class="p-5">{{ hook('checkout.order_summary') }}</div></section>
+            {{ addon_zone('storefront.cart_below') }}{{ hook('checkout.gifting') }}{{ hook('checkout.coupon') }}{{ hook('checkout.discord_roles') }}
+            <div>{{ hook('checkout.pay_button') }}</div>
+            <p style="text-align:center; font-size:11px; color:var(--vv-dim);">By purchasing you agree to the {% if store.terms_url %}<a href="{{ store.terms_url }}" target="_blank" class="accent-text" style="text-decoration:none;">Terms of Service</a>{% else %}Terms of Service{% endif %}</p>
+        </div>
+    </div>
+    {{ hook('checkout.payment_modal') }}
+</div>{% endblock %}

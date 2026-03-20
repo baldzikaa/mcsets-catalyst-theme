@@ -1,0 +1,37 @@
+{# Package tile — used inside .vv-pkg-grid #}
+<div class="vv-pkg-tile">
+    <div class="vv-pkg-tile-img-wrap">
+        {% if package.image_path %}
+            <img src="{{ storage_url(package.image_path) }}" alt="{{ package.name }}">
+        {% else %}
+            <div class="vv-pkg-no-img">
+                <svg class="w-10 h-10" style="color:var(--vv-surface3);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+            </div>
+        {% endif %}
+        {% if package.original_price and package.original_price > package.price %}
+            {% set discount = ((1 - package.price / package.original_price) * 100)|round %}
+            <div class="vv-pkg-tile-badge">-{{ discount }}%</div>
+        {% endif %}
+        {% if is_preorder_pending(package) %}
+            <div class="vv-pkg-tile-badge" style="background:#d97706;">Pre-order</div>
+        {% endif %}
+    </div>
+    <div class="vv-pkg-tile-body">
+        <a href="{{ package_url(package) }}" class="vv-pkg-tile-name" style="text-decoration:none;">{{ editable(package.name,'package',package.id,'name') }}</a>
+        <div class="vv-pkg-tile-footer">
+            <div>
+                <div class="vv-pkg-tile-price">{{ price(package.price) }}</div>
+                {% if package.original_price and package.original_price > package.price %}
+                    <div style="font-size:10px; color:var(--vv-dim); text-decoration:line-through;">{{ price(package.original_price) }}</div>
+                {% endif %}
+            </div>
+            <button class="vv-pkg-tile-btn"
+                    @click.prevent="addItem({{ package|json_encode }})"
+                    :disabled="hasItem({{ package.id }}) || loading === {{ package.id }}">
+                <span x-show="!hasItem({{ package.id }}) && loading !== {{ package.id }}">{{ is_preorder_pending(package) ? 'Pre-order' : 'Buy' }}</span>
+                <span x-show="hasItem({{ package.id }})" x-cloak>✓ Added</span>
+                <span x-show="loading === {{ package.id }}" x-cloak><span class="vv-spinner"></span></span>
+            </button>
+        </div>
+    </div>
+</div>
